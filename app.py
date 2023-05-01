@@ -8,7 +8,7 @@ from streamlit_option_menu import option_menu
 from database import *
 
 # set page config and initial setup
-st.set_page_config(page_title='Sebas App', page_icon='🚀', layout='wide', initial_sidebar_state='auto')
+st.set_page_config(page_title='Brakes YES', page_icon='🚀', layout='wide', initial_sidebar_state='auto')
 
 # Initial setup
 DATA_FILE = 'clients_data.csv'
@@ -391,7 +391,7 @@ if __name__ == '__main__':
     menu_items = ['Inicio', 'Clientes', 'Ventas', 'Productos', 'Proveedores', 'Reportes', 'Configuracion']
     menu_icons = ['app', 'app', 'cart', 'cubes', 'truck', 'file-text', 'gear']
     with st.sidebar:
-        selected = option_menu("Sebas App", menu_items,
+        selected = option_menu("Brakes YES", menu_items,
             icons=menu_icons, menu_icon="cast", default_index=1)
     if selected == "Inicio":
         inicio()
