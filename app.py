@@ -346,46 +346,102 @@ def ventas():
     
         
 def home():
-    st.title('Chequear si el cliente existe')
+    opcion = st.sidebar.radio('Selecciona una opcion', ['Crear Cliente', 'Actualizar Cliente'])
+    
+    if opcion == 'Crear Cliente':
+        st.write('Crear Cliente')
         
-    with st.form(key='buscar_form', clear_on_submit=True):
-        cedula = st.text_input('Cedula')
-        find_cliente = get_cliente_cedula(cedula)
-        submit_button = st.form_submit_button(label='Buscar cliente')
-        if find_cliente:
-            #st.success('Cliente encontrado')
-            st.success(f"Nombre: {find_cliente['nombre']}, Apellido: {find_cliente['apellido']}, Cedula: {find_cliente['cedula']}")        
-        else:
-            st.error('Cliente no encontrado')
+        with st.form(key='buscar_form', clear_on_submit=True):
+            st.title('Chequear si el cliente existe')
+            cedula = st.text_input('Cedula')
+            find_cliente = get_cliente_cedula(cedula)
+            submit_button = st.form_submit_button(label='Buscar cliente')
+            if find_cliente:
+                #st.success('Cliente encontrado')
+                st.success(f"Nombre: {find_cliente['nombre']}, Apellido: {find_cliente['apellido']}, Cedula: {find_cliente['cedula']}")        
+            else:
+                st.error('Cliente no encontrado')
+                
+        #cliente_seleccionado = st.selectbox('Selecciona un cliente', clientes_array)
             
-    #cliente_seleccionado = st.selectbox('Selecciona un cliente', clientes_array)
+        st.write('----')
+        st.title('Ingresa un nuevo cliente')
+        with st.form(key='my_form', clear_on_submit=True):
+            nombre = st.text_input('Nombres', placeholder='Juan Pedro')
+            apellido = st.text_input('Apellidos', placeholder='Perez Perez')
+            cedula = st.text_input('Cedula', placeholder='1234567890')
+            telefono = st.text_input('Telefono', placeholder='0999999999')
+            direccion = st.text_area('Direccion', placeholder='Av. 6 de Diciembre N34-56 y Av. Eloy Alfaro', height=100)
+            date_created = datetime.now()
+            
+            submit_button = st.form_submit_button(label='Submit')
+            if submit_button:
+                st.markdown('---')
+                st.markdown(f'### Nombres: {nombre}')
+                st.markdown(f'### Apellidos: {apellido}')
+                st.markdown(f'### Cedula: {cedula}')
+                st.markdown(f'### Telefono: {telefono}')
+                st.markdown(f'### Direccion: {direccion}')
+                cliente = {
+                    'nombre': nombre,
+                    'apellido': apellido,
+                    'cedula': cedula,
+                    'telefono': telefono,
+                    'direccion': direccion,
+                    'date_created': date_created,
+                    
+                }
+                insert_cliente(cliente)
+                st.success('Cliente guardado con exito')
+        time.sleep(1)
         
-    st.write('----')
-    st.title('Ingresa un nuevo cliente')
-    with st.form(key='my_form', clear_on_submit=True):
-        nombre = st.text_input('Nombre')
-        apellido = st.text_input('Apellido')
-        cedula = st.text_input('Cedula')
-        submit_button = st.form_submit_button(label='Submit')
-        if submit_button:
-            st.write('Nombre: ', nombre)
-            st.write('Apellido: ', apellido)
-            st.write('Cedula: ', cedula)
-            st.write('Guardando en la base de datos')
-            cliente = {
-                'nombre': nombre,
-                'apellido': apellido,
-                'cedula': cedula,
-                'rating': 5
-            }
-            insert_cliente(cliente)
-            st.success('Cliente guardado con exito')
-    time.sleep(1)
+    elif  opcion == 'Actualizar Cliente':
+        st.title('Actualizar Cliente')
+        clientes = get_clientes()
+        clientes_a = []
+        clientes_all = []
+        for cliente in clientes:
+            clientes_a.append(cliente['cedula'])
+            clientes_all.append((cliente['cedula'], cliente['nombre'], cliente['apellido'], cliente['cedula'], cliente['telefono'], cliente['direccion'], cliente['date_created']))
+            
+        cliente_seleccionado = st.selectbox('Selecciona un cliente', clientes_a)
+        with st.form(key='actualizar_cliente', clear_on_submit=True):
+            if cliente_seleccionado:
+                cols = st.columns(2)
+                with cols[0]:
+                    input_nombre = st.text_input('Nombres', clientes_all[clientes_a.index(cliente_seleccionado)][1])
+                    input_apellido = st.text_input('Apellidos', clientes_all[clientes_a.index(cliente_seleccionado)][2])
+                    input_cedula = st.text_input('Cedula', clientes_all[clientes_a.index(cliente_seleccionado)][3])
+                with cols[1]:
+                    input_telefono = st.text_input('Telefono', clientes_all[clientes_a.index(cliente_seleccionado)][4])
+                    input_direccion = st.text_area('Direccion', clientes_all[clientes_a.index(cliente_seleccionado)][5], height=100)
+            submit_button = st.form_submit_button(label='Actualizar')
+            if submit_button:
+                data = {
+                    "nombre": input_nombre,
+                    "apellido": input_apellido,
+                    "cedula": input_cedula,
+                    "telefono": input_telefono,
+                    "direccion": input_direccion,
+                    "date_updated": datetime.now(),
+                    "user_updated": "admin"
+                }
+                
+                update_cliente_by_cedula(cliente_seleccionado, data)
+                    
+                st.success('Cliente actualizado con exito')
+                
+        
+    # show all clientes in dataframe
+    df_columns = ['nombre', 'apellido', 'cedula', 'telefono', 'direccion', 'date_created']
+    
     clientes = get_clientes()
-    for cliente in clientes:
-        st.write(cliente)
+    df = pd.DataFrame(clientes, columns=df_columns)
+    sorted_df = df.sort_values(by=['date_created'], ascending=False)
+    st.dataframe(sorted_df.head(10), use_container_width=True)
+    
+    
         
-
 if __name__ == '__main__':
     # 1. as sidebar menu
     menu_items = ['Inicio', 'Clientes', 'Ventas', 'Productos', 'Proveedores', 'Reportes', 'Configuracion']

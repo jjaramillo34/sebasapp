@@ -31,6 +31,9 @@ def insert_cliente(cliente):
 def update_cliente(id: str, cliente):
     return clientes.update_one({'_id': ObjectId(id)}, {'$set': cliente})
 
+def update_cliente_by_cedula(cedula: str, cliente):
+    return clientes.update_one({'cedula': cedula}, {'$set': cliente})
+
 def delete_cliente(id: str):
     return clientes.delete_one({'_id': ObjectId(id)})
 
