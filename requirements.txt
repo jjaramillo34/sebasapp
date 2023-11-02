@@ -6,3 +6,5 @@ streamlit-option-menu
 toml
 python-dotenv
 pymongo
+matplotlib
+Plotly
