@@ -6,7 +6,9 @@ from datetime import datetime
 #from streamlit_option_menu import option_menu
 from streamlit_option_menu import option_menu
 from database import *
-
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 # set page config and initial setup
 st.set_page_config(page_title='Brakes YES', page_icon='🚀', layout='wide', initial_sidebar_state='auto')
@@ -21,6 +23,8 @@ columnas_proveedores = ['Nombre', 'Direccion', 'Telefono', 'Email', 'Cedula', 'F
 if not os.path.exists(DATA_FILE):
     clients_data = pd.DataFrame(columns=['Client Name', 'Client Email', 'Part Name', 'Price', 'Quantity', 'Total'])
     clients_data.to_csv(DATA_FILE, index=False)
+
+
 
 # Load data
 #@st.cache_data
@@ -42,7 +46,11 @@ def generar_reporte(quantity, price, total):
     
     """
     
+    return summario
 
+def generar_factura():
+    
+    
 # Main app
 def main():
     st.title('Auto Parts Sales Management')

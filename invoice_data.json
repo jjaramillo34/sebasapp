@@ -1,0 +1,17 @@
+{
+  "company_name": "Mi Empresa",
+  "client_name": "Cliente XYZ",
+  "items": [
+    {
+      "product": "Producto 1",
+      "quantity": 2,
+      "price": 10.0
+    },
+    {
+      "product": "Producto 2",
+      "quantity": 3,
+      "price": 15.0
+    }
+  ],
+  "tax_rate": 0.16
+}
