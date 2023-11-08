@@ -53,6 +53,7 @@ def generar_factura():
     
 # Main app
 def main():
+    
     st.title('Auto Parts Sales Management')
 
     st.sidebar.title('Menu')
@@ -506,7 +507,7 @@ if __name__ == '__main__':
     menu_items = ['Inicio', 'Clientes', 'Ventas', 'Productos', 'Proveedores', 'Reportes', 'Configuracion']
     menu_icons = ['app', 'app', 'cart', 'cubes', 'truck', 'file-text', 'gear']
     with st.sidebar:
-        selected = option_menu("Brakes YES", menu_items,
+        selected = option_menu("Brake YES", menu_items,
             icons=menu_icons, menu_icon="cast", default_index=1)
     if selected == "Inicio":
         inicio()
