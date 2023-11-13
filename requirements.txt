@@ -8,4 +8,3 @@ python-dotenv
 pymongo
 matplotlib
 Plotly
-st_aggrid
