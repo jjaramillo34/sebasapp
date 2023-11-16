@@ -100,6 +100,7 @@ def load_data():
     data['market'] = data['market'].apply(lambda x: x.replace('WS', 'Upper West Side'))
     data['market'] = data['market'].apply(lambda x: x.replace('MID', 'Midtown'))
     data['market'] = data['market'].apply(lambda x: x.replace('FIDI', 'Financial District/BPC'))
+    data['market'] = data['market'].apply(lambda x: x.replace('BKLYN', 'Brooklyn'))
     # remove metro group blanks
     data = data[~pd.isna(data['metro'])]
     
@@ -1039,16 +1040,10 @@ def dashboard_monthly():
     # sort by submarket and year_quarter
     summary_df = summary_df.sort_values(by=['submarket', 'year_quarter'])
     
-    # get the change in percentage of price ppsf based on the previous quarter and year
-    summary_df['change_ppsf'] = round((summary_df['avg_ppsf'] - summary_df['avg_ppsf'].shift(1)) / summary_df['avg_ppsf'].shift(1) * 100, 2)
-    
-    # get the change in percentage of count of sales based on the previous quarter and year
-    summary_df['change_count'] = round((summary_df['count'] - summary_df['count'].shift(1)) / summary_df['count'].shift(1) * 100, 2)
-    
     unique_market = summary_df['market'].unique()
     
     st.dataframe(summary_df, use_container_width=True)
-  
+    
     for market in unique_market:
       data_table = []    
       # filter the dataframe by market
@@ -1056,13 +1051,8 @@ def dashboard_monthly():
       
       # get the unique submarket
       unique_submarket = market_df['submarket'].unique()
-      cols_size = unique_submarket.size
-      cols = st.columns(cols_size)
       
-      # create the header 3 columns for each submarket 
-      #header = '| Submarket | Price ppsf | Count of Sales |'
-    
-      #data_table.append([header])
+      
       for i, submarket in enumerate(unique_submarket):
         try: 
           change_ppsf = round((market_df[market_df['submarket'] == submarket]['avg_ppsf'] - market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1)) / market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1) * 100, 2)
@@ -1106,9 +1096,6 @@ def dashboard_monthly():
         concat_price_text1_pos = f'{price_text1_pos} {change_price_text1_pos}'
         concat_price_text1_neg = f'{price_text1_neg} {change_price_text1_neg}'
         
-        # write metrics for sale price
-        
-      
         if change_ppsf.iloc[-1] > 0:
           data_table.append([submarket, concat_ppsf_text0_pos, concat_count_text0_pos, concat_price_text1_pos])
         
@@ -1127,7 +1114,7 @@ def dashboard_monthly():
       # Combine rows into a single string
       formatted_table = "\n".join(formatted_rows)
 
-      header = f"| {market} | Q{quarter_input} {year_input} Price Avg | Q{quarter_input} {year_input} Count of Sales | Q{quarter_input} {year_input} Price Avg |" 
+      header = f"| {market} | Q{quarter_input} {year_input} PPSF Avg | Q{quarter_input} {year_input} Count of Sales | Q{quarter_input} {year_input} Price Avg |" 
       separator = "|:" + ":|:".join(["-" * length for length in max_lengths]) + ":|"
 
       # Complete Markdown table
@@ -1135,13 +1122,158 @@ def dashboard_monthly():
       st.subheader(f'{market} Metrics')
       st.markdown(markdown_table, unsafe_allow_html=True)
       
+    # quarter over quarter change in count of sales, average price ppsf and average sale price
+    quarter_change_df = data.copy()
+    # filter market only manhattan
+    #quarter_change_df = quarter_change_df[quarter_change_df['market'] == metro_input]
+    # filter data base on year, metro and quarter
+    quarter_change_df = quarter_change_df[quarter_change_df['sale_year'] == year_input]
+    quarter_change_df = quarter_change_df[quarter_change_df['sale_quarter'] == quarter_input]
+    # filter by building type only condos
+    quarter_change_df = quarter_change_df[quarter_change_df['bldg_type'] == 'condo']
+    
+    # create a pivot table based on quarter and year and bldg_type and sale_price and ppsf and count of sales and gross sales amount and average sale price
+    quarter_change_df = quarter_change_df.groupby(['market', 'submarket', 'sale_year', 'sale_quarter']).agg({'sale_price': ['count', 'mean', 'sum'], 'ppsf': ['mean']})
+    quarter_change_df = quarter_change_df.reset_index()
+    
+    # Remove UPM
+    quarter_change_df = quarter_change_df[quarter_change_df['market'] != 'UPM']
+    
+    # rename the columns
+    quarter_change_df.columns = ['market', 'submarket', 'sale_year', 'sale_quarter', 'count', 'avg_sale_price', 'gross_sales', 'avg_ppsf']
+    
+    # concat the sale_year and sale_quarter
+    quarter_change_df['year_quarter'] = quarter_change_df['sale_year'].astype(str) + '-Q' + quarter_change_df['sale_quarter'].astype(str)
+    
+    # sort by submarket and year_quarter
+    quarter_change_df = quarter_change_df.sort_values(by=['submarket', 'year_quarter'])
+    
+    # get the unique market
+    unique_market = quarter_change_df['market'].unique()
+    
+    # last quarter same year data
+    last_quarter_df = data.copy()
+    # filter only metro manhattan
+    #last_quarter_df = last_quarter_df[last_quarter_df['market'] == metro_input]
+    # filter data base on year, metro and quarter
+    last_quarter_df = last_quarter_df[last_quarter_df['sale_year'] == year_input]
+    last_quarter_df = last_quarter_df[last_quarter_df['sale_quarter'] == quarter_input - 1]
+    # filter by building type only condos
+    last_quarter_df = last_quarter_df[last_quarter_df['bldg_type'] == 'condo']
+    
+    # create a pivot table based on quarter and year and bldg_type and sale_price and ppsf and count of sales and gross sales amount and average sale price
+    last_quarter_df = last_quarter_df.groupby(['market', 'submarket', 'sale_year', 'sale_quarter']).agg({'sale_price': ['count', 'mean', 'sum'], 'ppsf': ['mean']})
+    last_quarter_df = last_quarter_df.reset_index()
+    
+    # Remove UPM
+    last_quarter_df = last_quarter_df[last_quarter_df['market'] != 'UPM']
+    
+    # rename the columns
+    last_quarter_df.columns = ['market', 'submarket', 'sale_year', 'sale_quarter', 'count', 'avg_sale_price', 'gross_sales', 'avg_ppsf']
+    
+    # concat the sale_year and sale_quarter
+    last_quarter_df['year_quarter'] = last_quarter_df['sale_year'].astype(str) + '-Q' + last_quarter_df['sale_quarter'].astype(str)
+    
+    # sort by submarket and year_quarter
+    last_quarter_df = last_quarter_df.sort_values(by=['submarket', 'year_quarter'])
+    
+    # concat both dataframes
+    quarter_change_df = pd.concat([quarter_change_df, last_quarter_df])
+    
+    # sort by submarket and year_quarter
+    quarter_change_df = quarter_change_df.sort_values(by=['submarket', 'year_quarter'])
+    # remove market Brooklyn
+    quarter_change_df = quarter_change_df[quarter_change_df['market'] != 'Brooklyn']
+    
+    # get the unique market
+    unique_market = quarter_change_df['market'].unique()
+    
+    st.dataframe(quarter_change_df, use_container_width=True)
+    
+    for i, market in enumerate(unique_market):
+      data_table = []    
+      # filter the dataframe by market
+      market_df = quarter_change_df[quarter_change_df['market'] == market]
+      
+      # get the unique submarket
+      unique_submarket = market_df['submarket'].unique()
+      
+      
+      for i, submarket in enumerate(unique_submarket):
+        try: 
+          change_ppsf = round((market_df[market_df['submarket'] == submarket]['avg_ppsf'] - market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1)) / market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1) * 100, 2)
+          change_avg_sale_price = round((market_df[market_df['submarket'] == submarket]['avg_sale_price'] - market_df[market_df['submarket'] == submarket]['avg_sale_price'].shift(1)) / market_df[market_df['submarket'] == submarket]['avg_sale_price'].shift(1) * 100, 2)
+        except:
+          # no change in
+          change_ppsf = "No Change PV"
+          change_avg_sale_price = "No Change PV"
+        try:
+          change_count = round((market_df[market_df['submarket'] == submarket]['count'] - market_df[market_df['submarket'] == submarket]['count'].shift(1)) / market_df[market_df['submarket'] == submarket]['count'].shift(1) * 100, 2)
+          change_avg_sale_price = round((market_df[market_df['submarket'] == submarket]['avg_sale_price'] - market_df[market_df['submarket'] == submarket]['avg_sale_price'].shift(1)) / market_df[market_df['submarket'] == submarket]['avg_sale_price'].shift(1) * 100, 2)
+        except:
+          # no change in
+          change_count = "No Change PV"
+          change_avg_sale_price = "No Change PV"
+          
+        count_sales = market_df[market_df['submarket'] == submarket]['count'].iloc[-1]
+        price_ppsf = market_df[market_df['submarket'] == submarket]['avg_ppsf'].iloc[-1]
+        price_avg_sale_price = market_df[market_df['submarket'] == submarket]['avg_sale_price'].iloc[-1]
+        val_ppsf = format(int(price_ppsf), ',d')
+        val_avg_sale_price = format(int(price_avg_sale_price), ',d')
+        
+        change_text0_pos = f'(<span style="color:green">{change_ppsf.iloc[-1]}%</span>)'
+        change_text0_neg = f'(<span style="color:red">{change_ppsf.iloc[-1]}%</span>)'
+        change_count_text0_pos = f'<span style="color:green">({change_count.iloc[-1]}%)</span>'
+        change_count_text0_neg = f'<span style="color:red">({change_count.iloc[-1]}%)</span>'
+        change_price_text1_pos = f'<span style="color:green">({change_avg_sale_price.iloc[-1]}%)</span>'
+        change_price_text1_neg = f'<span style="color:red">({change_avg_sale_price.iloc[-1]}%)</span>'
+        
+        count_text0_pos = f'{count_sales}'
+        count_text0_neg = f'{count_sales}'
+        ppfs_text1_pos = f'{val_ppsf}'
+        ppfs_text1_neg = f'{val_ppsf}'
+        price_text1_pos = f'{val_avg_sale_price}'
+        price_text1_neg = f'{val_avg_sale_price}'
+        
+        concat_ppsf_text0_pos = f'{count_text0_pos} {change_text0_pos}'
+        concat_ppsf_text0_neg = f'{count_text0_neg} {change_text0_neg}'
+        concat_count_text0_pos = f'{ppfs_text1_pos} {change_count_text0_pos}'
+        concat_count_text0_neg = f'{ppfs_text1_neg} {change_count_text0_neg}'
+        concat_price_text1_pos = f'{price_text1_pos} {change_price_text1_pos}'
+        concat_price_text1_neg = f'{price_text1_neg} {change_price_text1_neg}'
+        
+        if change_ppsf.iloc[-1] > 0:
+          data_table.append([submarket, concat_ppsf_text0_pos, concat_count_text0_pos, concat_price_text1_pos])
+        else:
+          data_table.append([submarket, concat_ppsf_text0_neg, concat_count_text0_neg, concat_price_text1_neg])
+          
+      # Determine the longest string in each column
+      max_lengths = [max(len(str(row[i])) for row in data_table) for i in range(len(data_table[0]))]
+      
+      # Create formatted rows
+      formatted_rows = []
+      
+      for row in data_table:
+          formatted_row = "|".join([str(item).ljust(max_lengths[i]) for i, item in enumerate(row)])
+          formatted_rows.append("| " + formatted_row + " |")
+          
+      # Combine rows into a single string
+      formatted_table = "\n".join(formatted_rows)
+      
+      header = f"| {market} | Q{quarter_input} {year_input} PPSF Avg | Q{quarter_input} {year_input} Count of Sales | Q{quarter_input} {year_input} Price Avg |"
+      separator = "|:" + ":|:".join(["-" * length for length in max_lengths]) + ":|"
+      
+      # Complete Markdown table
+      markdown_table = header + "\n" + separator + "\n" + formatted_table
+      st.subheader(f'{market} Metrics')
+      st.markdown(markdown_table, unsafe_allow_html=True)
       
     # write the most expensive deals in Chelsea
     # filter the dataframe by market and submarket
     neighborhood_df = data.copy()
     # get only manhattan submarkets
     submarket_df = neighborhood_df[neighborhood_df['metro'] == 'Manhattan']
-    submarket = st.multiselect('Select Submarket', submarket_df['submarket'].unique(), default=['Chelsea'])
+    submarket = st.multiselect('Select Submarket', sorted(submarket_df['submarket'].unique()), default=['Chelsea'])
     #chealsea_df = chealsea_df[chealsea_df['market'] == 'Chelsea']
     
     submarket_df = submarket_df[submarket_df['submarket'].isin(submarket)]
