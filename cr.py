@@ -808,49 +808,52 @@ def dashboard_monthly():
       
       st.subheader(sentence)
       
-      blur_1 = f""" Count of Sales: {format(metro_df[metro_df['metro'] == metro]['count'].iloc[0], ',d')} 
-        vs {format(metro_df[metro_df['metro'] == metro]['count'].iloc[1], ',d')}
+      blur_1 = f""" Count of Sales: Q{quarter_input-1} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['count'].iloc[0]), ',d')} vs Q{quarter_input} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['count'].iloc[1]), ',d')}
         Change over previous year: {change_count}%
       """
-      blur_2 = f""" Gross Sales Amount: {format(int(metro_df[metro_df['metro'] == metro]['gross_sales'].iloc[0]), ',d')} vs {format(int(metro_df[metro_df['metro'] == metro]['gross_sales'].iloc[1]), ',d')}
+      blur_2 = f""" Gross Sales Amount: Q{quarter_input-1} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['gross_sales'].iloc[0]), ',d')} vs Q{quarter_input} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['gross_sales'].iloc[1]), ',d')}
         Change over previous year: {change_gross_sales}%
       """
-      blur_3 = f" Average Price ppsf: {format(int(metro_df[metro_df['metro'] == metro]['avg_ppsf'].iloc[0]), ',d')} vs {format(int(metro_df[metro_df['metro'] == metro]['avg_ppsf'].iloc[1]), ',d')}"
-      blur_4 = f" Average Sale Price: {format(int(metro_df[metro_df['metro'] == metro]['avg_sale_price'].iloc[0]), ',d')} vs {format(int(metro_df[metro_df['metro'] == metro]['avg_sale_price'].iloc[1]), ',d')}"
+      blur_3 = f""" Average Price ppsf: Q{quarter_input-1} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['avg_ppsf'].iloc[0]), ',d')} vs Q{quarter_input} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['avg_ppsf'].iloc[1]), ',d')}
+        Change over previous year: {change_ppsf}%
+      """
+      blur_4 = f""" Average Sale Price: Q{quarter_input-1} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['avg_sale_price'].iloc[0]), ',d')} vs Q{quarter_input} {str(year_input)}: {format(int(metro_df[metro_df['metro'] == metro]['avg_sale_price'].iloc[1]), ',d')}
+        Change over previous year: {change_price}%
+      """
       
       metro_dict.update({metro: {
         'change_count': {
-            'value': change_count,
-            'change': f'{change_count}%',
+            #'value': change_count,
+            #'change': f'{change_count}%',
             #f'count_{quarter_input}_{str(year_input)}': f'{format(metro_df[metro_df["metro"] == metro]["count"].iloc[0], ",d")}',
             # count of sales previous year same quarter
             #f'count_{quarter_input}_{str(year_input - 1)}': f'{format(metro_df[metro_df["metro"] == metro]["count"].iloc[1], ",d")}',
-            f'sentence': f'{blur_1}',
+            f'text': f'{blur_1}',
         },
         'change_gross_sales': {
-            'value': change_gross_sales,
-            'delta': f'{change_gross_sales}%',
-            f'gross_sales_{quarter_input}_{str(year_input)}': f'{format(metro_df[metro_df["metro"] == metro]["gross_sales"].iloc[0], ",d")}',
+            #'value': change_gross_sales,
+            #'delta': f'{change_gross_sales}%',
+            #f'gross_sales_{quarter_input}_{str(year_input)}': f'{format(metro_df[metro_df["metro"] == metro]["gross_sales"].iloc[0], ",d")}',
             # gross sales previous year same quarter
-            f'gross_sales_{quarter_input}_{str(year_input - 1)}': f'{format(metro_df[metro_df["metro"] == metro]["gross_sales"].iloc[1], ",d")}',
-            f'sentence': f'{blur_2}',
+            #f'gross_sales_{quarter_input}_{str(year_input - 1)}': f'{format(metro_df[metro_df["metro"] == metro]["gross_sales"].iloc[1], ",d")}',
+            f'text': f'{blur_2}',
             
         },
         'change_ppsf': {
-            'value': change_ppsf,
-            'delta': f'{change_ppsf}%',
-            f'ppsf_{quarter_input}_{str(year_input)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_ppsf"].iloc[0]), ",d")}',
+            #'value': change_ppsf,
+            #'delta': f'{change_ppsf}%',
+            #f'ppsf_{quarter_input}_{str(year_input)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_ppsf"].iloc[0]), ",d")}',
             # ppsf previous year same quarter
-            f'ppsf_{quarter_input}_{str(year_input - 1)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_ppsf"].iloc[1]), ",d")}',
-            f'sentence': f'{blur_3}',
+            #f'ppsf_{quarter_input}_{str(year_input - 1)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_ppsf"].iloc[1]), ",d")}',
+            f'text': f'{blur_3}',
         },
         'change_price': {
-            'value': change_price,
-            'delta': f'{change_price}%',
-            f'price_{quarter_input}_{str(year_input)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_sale_price"].iloc[0]), ",d")}',
+            #'value': change_price,
+            #'delta': f'{change_price}%',
+            #f'price_{quarter_input}_{str(year_input)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_sale_price"].iloc[0]), ",d")}',
             # price previous year same quarter
-            f'price_{quarter_input}_{str(year_input - 1)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_sale_price"].iloc[1]), ",d")}',
-            f'sentence': f'{blur_4}',
+            #f'price_{quarter_input}_{str(year_input - 1)}': f'{format(int(metro_df[metro_df["metro"] == metro]["avg_sale_price"].iloc[1]), ",d")}',
+            f'text': f'{blur_4}',
         }
       }})
       
@@ -1311,6 +1314,95 @@ def dashboard_monthly():
     
     st.subheader('Most Expensive Q3 2023 Sales by Neighborhood in Manhattan')
     st.dataframe(submarket_df, use_container_width=True)
+    
+    
+    st.title('Comparison by Selected Year and Quarter vs Current Year and Quarter')
+    
+    cols = st.columns(2)
+    with cols[0]:
+      year_input_1 = st.number_input('Enter Year', min_value=2003, max_value=2023, value=2020, key='year_input_1')
+      quarter_input_1 = st.number_input('Enter Quarter', min_value=1, max_value=4, value=1, key='quarter_input_1')
+    with cols[1]:
+      current_year_input = st.number_input('Enter Year', min_value=2003, max_value=2023, value=2023, key='current_year_input')
+      current_quarter_input = st.number_input('Enter Quarter', min_value=1, max_value=4, value=3, key='current_quarter_input')
+      
+    comparison_df = data.copy()
+    # filter data base on year, metro and quarter
+    comparison_df = comparison_df[comparison_df['metro'] == metro_input]
+    comparison_df = comparison_df[comparison_df['sale_year'] == year_input_1]
+    comparison_df = comparison_df[comparison_df['sale_quarter'] == quarter_input_1]
+    # filter by building only condos
+    comparison_df = comparison_df[comparison_df['bldg_type'] == 'condo']
+    
+    # create a pivot table based on quarter and year and bldg_type and sale_price and ppsf and count of sales and gross sales amount and average sale price
+    comparison_df = comparison_df.groupby(['market', 'sale_year', 'sale_quarter']).agg({'sale_price': ['count', 'mean', 'sum'], 'ppsf': ['mean']})
+    comparison_df = comparison_df.reset_index()
+    
+    # Remove UPM
+    comparison_df = comparison_df[comparison_df['market'] != 'UPM']
+    
+    # rename the columns
+    comparison_df.columns = ['market','sale_year', 'sale_quarter' ,'count', 'avg_sale_price', 'gross_sales', 'avg_ppsf']
+    
+    comparison_df_prev = data.copy()
+    # filter data base on year, metro and quarter
+    comparison_df_prev = comparison_df_prev[comparison_df_prev['metro'] == metro_input]
+    comparison_df_prev = comparison_df_prev[comparison_df_prev['sale_year'] == current_year_input]
+    comparison_df_prev = comparison_df_prev[comparison_df_prev['sale_quarter'] == current_quarter_input]
+    # filter by building only condos
+    comparison_df_prev = comparison_df_prev[comparison_df_prev['bldg_type'] == 'condo']
+    
+    # create a pivot table based on quarter and year and bldg_type and sale_price and ppsf and count of sales and gross sales amount and average sale price
+    comparison_df_prev = comparison_df_prev.groupby(['market', 'sale_year', 'sale_quarter']).agg({'sale_price': ['count', 'mean', 'sum'], 'ppsf': ['mean']})
+    comparison_df_prev = comparison_df_prev.reset_index()
+    
+    # Remove UPM
+    comparison_df_prev = comparison_df_prev[comparison_df_prev['market'] != 'UPM']
+    
+    # rename the columns
+    comparison_df_prev.columns = ['market', 'sale_year', 'sale_quarter','count', 'avg_sale_price', 'gross_sales', 'avg_ppsf']
+    
+    # sort by submarket and year_quarter
+    comparison_df = comparison_df.sort_values(by=['market', 'sale_year', 'sale_quarter'])
+    
+    # concat the 2 dataframes
+    comparison_df = pd.concat([comparison_df, comparison_df_prev])
+    
+    st.dataframe(comparison_df, use_container_width=True)
+    
+    unique_market = comparison_df['market'].unique()
+    
+    for i, market in enumerate(unique_market):
+      market_df = comparison_df[comparison_df['market'] == market]
+      
+      try:
+        change_count = round((market_df[market_df['market'] == market]['count'].iloc[1] - market_df[market_df['market'] == market]['count'].iloc[0]) / market_df[market_df['market'] == market]['count'].iloc[0] * 100, 2)
+        change_gross_sales = round((market_df[market_df['market'] == market]['gross_sales'].iloc[1] - market_df[market_df['market'] == market]['gross_sales'].iloc[0]) / market_df[market_df['market'] == market]['gross_sales'].iloc[0] * 100, 2)
+        
+        change_ppsf = round((market_df[market_df['market'] == market]['avg_ppsf'].iloc[1] - market_df[market_df['market'] == market]['avg_ppsf'].iloc[0]) / market_df[market_df['market'] == market]['avg_ppsf'].iloc[0] * 100, 2)
+        change_price = round((market_df[market_df['market'] == market]['avg_sale_price'].iloc[1] - market_df[market_df['market'] == market]['avg_sale_price'].iloc[0]) / market_df[market_df['market'] == market]['avg_sale_price'].iloc[0] * 100, 2)
+      except:
+        change_count = "No Change PV"
+        change_gross_sales = "No Change PV"
+        change_ppsf = "No Change PV"
+        change_price = "No Change PV"
+        
+      st.write(f'{market} change in sales count {change_count}%')
+      st.write(f'{market} change in gross sales {change_gross_sales}%')
+      st.write(f'{market} change in price ppsf {change_ppsf}%')
+      st.write(f'{market} change in price {change_price}%')
+      
+      # create a dictionary with the changes
+      #change_arr[market] = [change_count, change_gross_sales, change_ppsf, change_price]
+      
+      change_arr.update({market: [{
+        'change_count': change_count,
+        'change_gross_sales': change_gross_sales,
+        'change_ppsf': change_ppsf,
+        'change_price': change_price
+      }]})
+      
+    st.write(change_arr)
     
             
           
