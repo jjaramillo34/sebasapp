@@ -1052,7 +1052,6 @@ def dashboard_monthly():
       # get the unique submarket
       unique_submarket = market_df['submarket'].unique()
       
-      
       for i, submarket in enumerate(unique_submarket):
         try: 
           change_ppsf = round((market_df[market_df['submarket'] == submarket]['avg_ppsf'] - market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1)) / market_df[market_df['submarket'] == submarket]['avg_ppsf'].shift(1) * 100, 2)
@@ -1088,7 +1087,6 @@ def dashboard_monthly():
         price_text1_pos = f'{val_avg_sale_price}'
         price_text1_neg = f'{val_avg_sale_price}'
         
-        
         concat_ppsf_text0_pos = f'{count_text0_pos} {change_text0_pos}'
         concat_ppsf_text0_neg = f'{count_text0_neg} {change_text0_neg}'
         concat_count_text0_pos = f'{ppfs_text1_pos} {change_count_text0_pos}'
@@ -1098,7 +1096,6 @@ def dashboard_monthly():
         
         if change_ppsf.iloc[-1] > 0:
           data_table.append([submarket, concat_ppsf_text0_pos, concat_count_text0_pos, concat_price_text1_pos])
-        
         else:
           data_table.append([submarket, concat_ppsf_text0_neg, concat_count_text0_neg, concat_price_text1_neg])
           
@@ -1221,12 +1218,18 @@ def dashboard_monthly():
         val_ppsf = format(int(price_ppsf), ',d')
         val_avg_sale_price = format(int(price_avg_sale_price), ',d')
         
-        change_text0_pos = f'(<span style="color:green">{change_ppsf.iloc[-1]}%</span>)'
-        change_text0_neg = f'(<span style="color:red">{change_ppsf.iloc[-1]}%</span>)'
-        change_count_text0_pos = f'<span style="color:green">({change_count.iloc[-1]}%)</span>'
-        change_count_text0_neg = f'<span style="color:red">({change_count.iloc[-1]}%)</span>'
-        change_price_text1_pos = f'<span style="color:green">({change_avg_sale_price.iloc[-1]}%)</span>'
-        change_price_text1_neg = f'<span style="color:red">({change_avg_sale_price.iloc[-1]}%)</span>'
+        if change_ppsf.iloc[-1] > 0:
+          change_text0_pos = f'(<span style="color:green">{change_ppsf.iloc[-1]}%</span>)'
+        else:
+          change_text0_neg = f'(<span style="color:red">{change_ppsf.iloc[-1]}%</span>)'
+        if change_count.iloc[-1] > 0:
+          change_count_text0_pos = f'<span style="color:green">({change_count.iloc[-1]}%)</span>'
+        else:
+          change_count_text0_neg = f'<span style="color:red">({change_count.iloc[-1]}%)</span>'
+        if change_avg_sale_price.iloc[-1] > 0:
+          change_price_text1_pos = f'<span style="color:green">({change_avg_sale_price.iloc[-1]}%)</span>'
+        else:
+          change_price_text1_neg = f'<span style="color:red">({change_avg_sale_price.iloc[-1]}%)</span>'
         
         count_text0_pos = f'{count_sales}'
         count_text0_neg = f'{count_sales}'
@@ -1267,6 +1270,24 @@ def dashboard_monthly():
       markdown_table = header + "\n" + separator + "\n" + formatted_table
       st.subheader(f'{market} Metrics')
       st.markdown(markdown_table, unsafe_allow_html=True)
+      
+    cols = st.columns(2)
+    with cols[0]:
+      # graph of average price ppsf by submarket
+      
+      fig = px.histogram(quarter_change_df, x="submarket", y="avg_sale_price", color="market", title='Average Price ppsf by Submarket', color_discrete_sequence=px.colors.sequential.RdBu, text_auto=".2s", marginal='box', hover_data=quarter_change_df.columns, barmode='group')
+      fig.update_layout(
+        #legend=dict(orientation="h"),
+        yaxis=dict(
+          title=dict(text='Average Price ppsf'),
+          titlefont_size=16,
+          tickfont_size=14,
+          side='left',
+          #range=[0, max_avg_sale_price + 100000]
+        ),
+        )
+      
+      st.plotly_chart(fig, theme="streamlit", use_container_width=True, height=600)
       
     # write the most expensive deals in Chelsea
     # filter the dataframe by market and submarket
